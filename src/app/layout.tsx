@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ONARA",
-  description: "FART wit Gemini Nigga",
+  description: "It's boo boo time!",
 };
 
 export default function RootLayout({
