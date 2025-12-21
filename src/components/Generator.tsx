@@ -198,7 +198,7 @@ export default function Generator() {
                                     maxWidth: "300px"
                                 }}
                             >
-                                <span>⬇</span> Download Image
+                                Download Image
                             </a>
                         </div>
                     )}
