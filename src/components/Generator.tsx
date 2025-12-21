@@ -66,8 +66,8 @@ export default function Generator() {
     };
 
     return (
-        <div className="glass-panel" style={{ maxWidth: "800px", margin: "0 auto" }}>
-            <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", justifyContent: "center" }}>
+        <div className="glass-panel" style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", justifyContent: "center", flexWrap: "wrap" }}>
                 <button
                     className={mode === "text-to-image" ? "btn-primary" : ""}
                     onClick={() => setMode("text-to-image")}
@@ -149,17 +149,59 @@ export default function Generator() {
                     />
                 </div>
 
-                <button type="submit" className="btn-primary" disabled={loading} style={{ width: "100%", padding: "1rem" }}>
-                    {loading ? "Generating..." : "Generate Gae"}
+                <button type="submit" className="btn-primary" disabled={loading} style={{ width: "100%", padding: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                    {loading ? (
+                        <>
+                            <span className="spinning" style={{ fontSize: "1.5rem", display: "inline-block" }}>😼</span>
+                            <span className="loading-dots">Generating</span>
+                        </>
+                    ) : (
+                        "Generate Gae"
+                    )}
                 </button>
             </form>
 
             {result && (
-                <div style={{ marginTop: "2rem" }} className="glass-panel">
-                    <h3 style={{ marginBottom: "1rem" }}>Result</h3>
-                    <div style={{ whiteSpace: "pre-wrap", background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px" }}>
-                        {result}
-                    </div>
+                <div style={{ marginTop: "2rem", textAlign: "center" }} className="glass-panel">
+                    <h3 style={{ marginBottom: "1.5rem" }}>Result</h3>
+
+                    {result.startsWith("data:image") ? (
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <img src={result} alt="Generated Art" style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid var(--surface-border)" }} />
+                        </div>
+                    ) : (
+                        <div style={{ whiteSpace: "pre-wrap", background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", textAlign: "left" }}>
+                            {result}
+                        </div>
+                    )}
+
+                    {result.startsWith("data:image") && (
+                        <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "center" }}>
+                            <a
+                                href={result}
+                                download={`onara-art-${Date.now()}.png`}
+                                style={{
+                                    textDecoration: "none",
+                                    color: "var(--primary-glow)",
+                                    border: "1px solid var(--primary-glow)",
+                                    padding: "0.75rem 2rem",
+                                    borderRadius: "8px",
+                                    fontSize: "1rem",
+                                    cursor: "pointer",
+                                    whiteSpace: "nowrap",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.5rem",
+                                    background: "rgba(180, 65, 255, 0.1)",
+                                    width: "100%",
+                                    justifyContent: "center",
+                                    maxWidth: "300px"
+                                }}
+                            >
+                                <span>⬇</span> Download Image
+                            </a>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

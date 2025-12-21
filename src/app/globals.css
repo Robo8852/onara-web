@@ -125,3 +125,56 @@ textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  .glass-panel {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .glass-panel {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+  filter: hue-rotate(270deg) saturate(2);
+}
+
+.loading-dots::after {
+  content: '';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 25% { content: '.'; }
+  26%, 50% { content: '..'; }
+  51%, 75% { content: '...'; }
+  76%, 100% { content: ''; }
+}
