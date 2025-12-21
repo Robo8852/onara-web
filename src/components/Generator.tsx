@@ -1,0 +1,167 @@
+"use client";
+
+import { useState, useRef } from "react";
+import Image from "next/image";
+
+type Mode = "text-to-image" | "image-to-image";
+
+export default function Generator() {
+    const [mode, setMode] = useState<Mode>("text-to-image");
+    const [prompt, setPrompt] = useState("");
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedImage(file);
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setResult(null);
+
+        try {
+            let response;
+
+            if (mode === "image-to-image" && selectedImage) {
+                const formData = new FormData();
+                formData.append("prompt", prompt);
+                formData.append("image", selectedImage);
+
+                response = await fetch("/api/generate", {
+                    method: "POST",
+                    body: formData,
+                });
+            } else {
+                response = await fetch("/api/generate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ prompt }),
+                });
+            }
+
+            if (!response.ok) {
+                throw new Error("Failed to generate");
+            }
+
+            const data = await response.json();
+            setResult(data.result);
+
+        } catch (error) {
+            console.error("Error generating:", error);
+            alert("Error generating content. Please check console.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="glass-panel" style={{ maxWidth: "800px", margin: "0 auto" }}>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", justifyContent: "center" }}>
+                <button
+                    className={mode === "text-to-image" ? "btn-primary" : ""}
+                    onClick={() => setMode("text-to-image")}
+                    style={{
+                        background: mode === "text-to-image" ? undefined : "transparent",
+                        border: "1px solid var(--surface-border)",
+                        padding: "0.5rem 1rem",
+                        color: "white",
+                        borderRadius: "8px",
+                        cursor: "pointer"
+                    }}
+                >
+                    Text to Image
+                </button>
+                <button
+                    className={mode === "image-to-image" ? "btn-primary" : ""}
+                    onClick={() => setMode("image-to-image")}
+                    style={{
+                        background: mode === "image-to-image" ? undefined : "transparent",
+                        border: "1px solid var(--surface-border)",
+                        padding: "0.5rem 1rem",
+                        color: "white",
+                        borderRadius: "8px",
+                        cursor: "pointer"
+                    }}
+                >
+                    Image to Image
+                </button>
+            </div>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                {mode === "image-to-image" && (
+                    <div
+                        onClick={() => fileInputRef.current?.click()}
+                        style={{
+                            border: "2px dashed var(--surface-border)",
+                            borderRadius: "12px",
+                            padding: "2rem",
+                            textAlign: "center",
+                            cursor: "pointer",
+                            background: "rgba(0,0,0,0.2)",
+                            position: "relative",
+                            minHeight: "200px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleImageSelect}
+                            accept="image/*"
+                            style={{ display: "none" }}
+                        />
+                        {previewUrl ? (
+                            <img
+                                src={previewUrl}
+                                alt="Selected"
+                                style={{ maxWidth: "100%", maxHeight: "300px", borderRadius: "8px" }}
+                            />
+                        ) : (
+                            <div>
+                                <p>Click to upload an image</p>
+                                <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>JPG, PNG supported</span>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <div>
+                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600 }}>Prompt</label>
+                    <textarea
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder={mode === "text-to-image" ? "Describe the image you want to gae" : "Describe how to gae the image..."}
+                        rows={4}
+                        required
+                    />
+                </div>
+
+                <button type="submit" className="btn-primary" disabled={loading} style={{ width: "100%", padding: "1rem" }}>
+                    {loading ? "Generating..." : "Generate Gae"}
+                </button>
+            </form>
+
+            {result && (
+                <div style={{ marginTop: "2rem" }} className="glass-panel">
+                    <h3 style={{ marginBottom: "1rem" }}>Result</h3>
+                    <div style={{ whiteSpace: "pre-wrap", background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px" }}>
+                        {result}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
