@@ -121,15 +121,15 @@ export default function Generator() {
                     Text to Image
                 </button>
                 <button
+                    className={mode === "image-to-image" ? "btn-primary" : ""}
                     onClick={() => setMode("image-to-image")}
                     style={{
-                        background: mode === "image-to-image" ? "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)" : "transparent",
-                        border: mode === "image-to-image" ? "none" : "1px solid var(--surface-border)",
+                        background: mode === "image-to-image" ? undefined : "transparent",
+                        border: "1px solid var(--surface-border)",
                         padding: "0.5rem 1rem",
                         color: "white",
                         borderRadius: "8px",
-                        cursor: "pointer",
-                        boxShadow: mode === "image-to-image" ? "0 0 15px rgba(239, 68, 68, 0.5)" : "none"
+                        cursor: "pointer"
                     }}
                 >
                     Image to Image
