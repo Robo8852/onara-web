@@ -1,9 +1,46 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
 
 type Mode = "text-to-image" | "image-to-image";
+
+const compressImage = (file: File, maxSize = 1024, quality = 0.8): Promise<File> => {
+    return new Promise((resolve) => {
+        const img = document.createElement("img");
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let { width, height } = img;
+
+            if (width > maxSize || height > maxSize) {
+                if (width > height) {
+                    height = (height / width) * maxSize;
+                    width = maxSize;
+                } else {
+                    width = (width / height) * maxSize;
+                    height = maxSize;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        resolve(new File([blob], file.name, { type: "image/jpeg" }));
+                    } else {
+                        resolve(file);
+                    }
+                },
+                "image/jpeg",
+                quality
+            );
+        };
+        img.src = URL.createObjectURL(file);
+    });
+};
 
 export default function Generator() {
     const [mode, setMode] = useState<Mode>("text-to-image");
@@ -14,11 +51,12 @@ export default function Generator() {
     const [result, setResult] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setSelectedImage(file);
-            const url = URL.createObjectURL(file);
+            const compressed = await compressImage(file);
+            setSelectedImage(compressed);
+            const url = URL.createObjectURL(compressed);
             setPreviewUrl(url);
         }
     };
