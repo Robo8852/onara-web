@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 
 type Mode = "text-to-image" | "image-to-image";
 
-const compressImage = (file: File, maxSize = 1024, quality = 0.8): Promise<File> => {
+const compressImage = (file: File, maxSize = 800, quality = 0.7): Promise<File> => {
     return new Promise((resolve) => {
         const img = document.createElement("img");
         img.onload = () => {
